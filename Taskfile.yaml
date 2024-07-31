@@ -1,0 +1,92 @@
+version: '3'
+
+vars:
+  PLUGIN_VERSION: "1.0.0"
+  BIN_DIRECTORY: "bin"
+  BINARY_NAME: "kubectl-encrypted-kubeconfig"
+  BUNDLE_BASE_NAME: "encrypted-kubeconfig"
+  GO_BUILD_ARGS: "-ldflags=\"-w -s\" -gcflags=all=\"-l -B\""
+  TARGETS: 
+    - linux-amd64
+    - windows-amd64
+    - darwin-arm64
+
+tasks:
+  default:
+    cmds: 
+      - task: build
+    silent: true
+
+  modules:
+    env:
+      GO111MODULE: on
+    cmds:
+      - go mod tidy
+
+  build:
+    deps: 
+      - task: modules
+    env:
+      GO111MODULE: on
+    cmds:
+      - |
+        for TARGET in {{ .TARGETS | join " " }}; do
+          IFS='-' read -r GOOS GOARCH <<< "$TARGET"
+          export GOARCH=$GOARCH
+          export GOOS=$GOOS
+          go build \
+            {{.GO_BUILD_ARGS}} \
+            -o {{.BIN_DIRECTORY}}/{{.BINARY_NAME}}-$TARGET \
+            main.go
+        done
+
+  bundle:
+    deps: 
+      - task: prepare-bundle
+    env:
+      DOWNLOAD_URL: "./"
+    cmds:
+      - |
+        export PLUGIN_VERSION="{{.PLUGIN_VERSION}}"
+        export SHA256_LINUX_AMD64=$(sha256sum bundle/{{.BUNDLE_BASE_NAME}}-linux-amd64.tar.gz | cut -f 1 -d ' ')
+        export SHA256_DARWIN_ARM64=$(sha256sum bundle/{{.BUNDLE_BASE_NAME}}-darwin-arm64.tar.gz | cut -f 1 -d ' ')
+        export SHA256_WINDOWS_AMD64=$(sha256sum bundle/{{.BUNDLE_BASE_NAME}}-windows-amd64.zip | cut -f 1 -d ' ')
+        envsubst < {{.BUNDLE_BASE_NAME}}.yaml.template > bundle/{{.BUNDLE_BASE_NAME}}.yaml
+
+  prepare-bundle:
+    internal: true
+    deps:
+      - task: build
+    cmds:
+      - |-
+        for OSARCH in {{.TARGETS | join " "}}; do
+          if [ "$OSARCH" = "windows-amd64" ]; then
+            BUNDLE_TARGET="{{.BUNDLE_BASE_NAME}}.exe"
+            ARCHIVE_EXT="zip"
+            ARCHIVE_CMD="zip --quiet ../{{.BUNDLE_BASE_NAME}}-$OSARCH.$ARCHIVE_EXT *"
+          else
+            BUNDLE_TARGET="{{.BUNDLE_BASE_NAME}}"
+            ARCHIVE_EXT="tar.gz"
+            ARCHIVE_CMD="tar cfz ../{{.BUNDLE_BASE_NAME}}-$OSARCH.$ARCHIVE_EXT *"
+          fi
+          BUNDLE_PATH="bundle/$OSARCH"
+          mkdir -p "$BUNDLE_PATH"
+          cp -a {{.BIN_DIRECTORY}}/{{.BINARY_NAME}}-"$OSARCH" "$BUNDLE_PATH"/"$BUNDLE_TARGET"
+          cp -a LICENSE "$BUNDLE_PATH"
+          cd "$BUNDLE_PATH"
+          eval $ARCHIVE_CMD
+          cd - > /dev/null
+          rm -r "$BUNDLE_PATH"
+        done
+
+  clean:
+    cmds:
+      - go clean
+      - rm -rf bin/ bundle/
+
+  test:
+    cmds:
+      - |
+        for TARGET in {{ .TARGETS | join " " }}; do
+          echo "$TARGET"
+        done
