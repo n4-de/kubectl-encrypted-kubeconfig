@@ -2,6 +2,8 @@ name: CI Pipeline
 
 on:
   push:
+    tags:        
+      - '*'
     branches:
       - main
   pull_request:
