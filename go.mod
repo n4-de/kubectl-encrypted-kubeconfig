@@ -1,4 +1,4 @@
-module n4.de/kek
+module github.com/n4-de/kubectl-encrypted-kubeconfig
 
 go 1.22.5
 
