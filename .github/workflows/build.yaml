@@ -17,11 +17,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Install dependencies
-        run: apk add -U curl zip gettext
+        run: apk add -U curl zip gettext git
       - name: Install Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
       - name: Run Task
         run: task clean bundle
+      - name: Test Binary
+        run: bin/kubectl-encrypted-kubeconfig-linux-amd64 version
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
