@@ -3,7 +3,12 @@ version: '3'
 vars:
   PLUGIN_VERSION: "1.0.0"
   GIT_REV:
-    sh: git rev-parse --short HEAD
+    sh: |-
+      if [ -n "${GITHUB_SHA:-}" ]; then
+        echo "${GITHUB_SHA:-}"
+      else 
+        git rev-parse --short HEAD
+      fi
   BUILD_DATE:
     sh: date -u +"%Y-%m-%dT%H:%M:%SZ"
   BIN_DIRECTORY: "bin"

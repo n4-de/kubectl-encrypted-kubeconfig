@@ -17,15 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Install dependencies
-        run: apk add -U curl zip gettext git
+        run: apk add -U curl zip gettext
       - name: Install Task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
       - name: "Printenv"
         run: printenv
-      - name: "PWD"
-        run: pwd
-      - name: "List"
-        run: ls -la
       - name: Run Task
         run: task clean bundle
       - name: Test Binary
