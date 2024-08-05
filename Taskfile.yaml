@@ -21,6 +21,9 @@ vars:
     - linux-amd64
     - windows-amd64
     - darwin-arm64
+  DOWNLOAD_URL:
+    sh: |-
+      echo "https://github.com/n4-de/kubectl-encrypted-kubeconfig/releases/download/{{.PLUGIN_VERSION}}/"
 
 tasks:
   default:
@@ -59,11 +62,10 @@ tasks:
   bundle:
     deps:
       - task: prepare-bundle
-    env:
-      DOWNLOAD_URL: "./"
     cmds:
       - |
         export PLUGIN_VERSION="{{.PLUGIN_VERSION}}"
+        export DOWNLOAD_URL="{{.DOWNLOAD_URL}}"
         export SHA256_LINUX_AMD64=$(sha256sum bundle/{{.BUNDLE_BASE_NAME}}-linux-amd64.tar.gz | cut -f 1 -d ' ')
         export SHA256_DARWIN_ARM64=$(sha256sum bundle/{{.BUNDLE_BASE_NAME}}-darwin-arm64.tar.gz | cut -f 1 -d ' ')
         export SHA256_WINDOWS_AMD64=$(sha256sum bundle/{{.BUNDLE_BASE_NAME}}-windows-amd64.zip | cut -f 1 -d ' ')
