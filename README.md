@@ -7,6 +7,18 @@
 - **Secure Authentication:** Decrypt access tokens on the fly using the system keyring for seamless authentication against a Kubernetes cluster.
 - **Encryption Conversion:** Easily encrypt existing KUBECONFIG files to enhance security.
 
+## Installation
+
+### Manual installation using krew
+
+1. Download encrypted-kubeconfig.yaml and the os specific package
+
+2. Run the following in the shell
+
+```bash
+kubectl krew install --manifest=encrypted-kubeconfig.yaml --archive=encrypted-kubeconfig-[darwin-arm64.tar.gz|linux-amd64.tar.gz|windows-amd64.zip]
+```
+
 ## Usage
 ```bash
 kubectl-encrypted-kubeconfig [command]
@@ -23,7 +35,7 @@ kubectl-encrypted-kubeconfig [command]
 ```
 -h, --help: Show help for kubectl-encrypted-kubeconfig.
 
-    --kubeconfig string   Path to KUBECONFIG file 
+    --kubeconfig string   Path to KUBECONFIG file
 ```
 
 ### Examples for using the conversion feature
