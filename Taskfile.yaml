@@ -1,12 +1,14 @@
 version: '3'
 
 vars:
-  PLUGIN_VERSION: "1.0.0"
+  PLUGIN_VERSION:
+      sh: |-
+        echo "${RELEASE_TAG:-dev}"
   GIT_REV:
     sh: |-
       if [ -n "${GITHUB_SHA:-}" ]; then
         echo "${GITHUB_SHA:-}"
-      else 
+      else
         git rev-parse --short HEAD
       fi
   BUILD_DATE:
@@ -15,14 +17,14 @@ vars:
   BINARY_NAME: "kubectl-encrypted-kubeconfig"
   BUNDLE_BASE_NAME: "encrypted-kubeconfig"
   PACKAGE_NAME: "github.com/n4-de/{{.BINARY_NAME}}"
-  TARGETS: 
+  TARGETS:
     - linux-amd64
     - windows-amd64
     - darwin-arm64
 
 tasks:
   default:
-    cmds: 
+    cmds:
       - task: build
     silent: true
 
@@ -33,7 +35,7 @@ tasks:
       - go mod tidy
 
   build:
-    deps: 
+    deps:
       - task: modules
     env:
       GO111MODULE: on
@@ -46,16 +48,16 @@ tasks:
           go build \
             -gcflags=all="-l -B" \
             -ldflags="-w -s
-            -X {{.PACKAGE_NAME}}/cmd.version_name={{.BINARY_NAME}} 
-            -X {{.PACKAGE_NAME}}/cmd.version={{.PLUGIN_VERSION}} 
-            -X {{.PACKAGE_NAME}}/cmd.commit_rev={{.GIT_REV}} 
+            -X {{.PACKAGE_NAME}}/cmd.version_name={{.BINARY_NAME}}
+            -X {{.PACKAGE_NAME}}/cmd.version={{.PLUGIN_VERSION}}
+            -X {{.PACKAGE_NAME}}/cmd.commit_rev={{.GIT_REV}}
             -X {{.PACKAGE_NAME}}/cmd.build_date={{.BUILD_DATE}}" \
             -o {{.BIN_DIRECTORY}}/{{.BINARY_NAME}}-$TARGET \
             main.go
         done
 
   bundle:
-    deps: 
+    deps:
       - task: prepare-bundle
     env:
       DOWNLOAD_URL: "./"
