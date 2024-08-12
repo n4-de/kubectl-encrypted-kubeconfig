@@ -42,13 +42,13 @@ kubectl-encrypted-kubeconfig [command]
 
 #### Generate an encrypted version of a kubeconfig.
 ```bash
-export KUBECONFIG=/[PATH_TO_KUBECONFIG}/config
+export KUBECONFIG=/[PATH_TO_KUBECONFIG]/config
 kubectl-encrypted-kubeconfig convert -o OUTPUT_FILEPATH -k
 ```
 
 #### Generate an encrypted version of a kubeconfig and replace the source kubeconfig.
 ```bash
-export KUBECONFIG=/[PATH_TO_KUBECONFIG}/config
+export KUBECONFIG=/[PATH_TO_KUBECONFIG]/config
 kubectl-encrypted-kubeconfig convert -w -k
 ```
 
